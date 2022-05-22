@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ExpenseAnalyzer.Models
 {
-    internal class Transaction
+    public class Transaction
     {
         public DateTime TransactionDate { get; set; }
         public DateTime PostingDate { get; set; }
@@ -18,9 +18,9 @@ namespace ExpenseAnalyzer.Models
 
     }
 
-    internal enum TransactionType
+    public enum TransactionType
     {
-        Debit,
+        Debit = 1,
         Credit,
         Refund
     }

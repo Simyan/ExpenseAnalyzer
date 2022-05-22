@@ -9,7 +9,8 @@ namespace ExpenseAnalyzer.Entities
         public DateTime TransactionDate { get; set; }
         public DateTime PostingDate { get; set; }
         public string Description { get; set; } = null!;
-        public long TransactionCategoryUid { get; set; }
+        public decimal Amount { get; set; }
+        
         public byte TypeUid { get; set; }
 
         public long? VendorUid { get; set; }
