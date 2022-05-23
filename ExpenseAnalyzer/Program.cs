@@ -7,6 +7,8 @@ using System.IO;
 
 
 
+TransactionService _transaction = new TransactionService();
+
 //Ask for file path
 string filePath = @"C:\Users\simya\source\repos\ExpenseAnalyzer\ExpenseAnalyzer\Files\Test.txt";
 Console.WriteLine("Enter File Path:");
@@ -15,11 +17,12 @@ filePath = Console.ReadLine();
 
 
 ////read file 
-string[] lines = File.ReadAllLines(filePath);
+//string[] lines = File.ReadAllLines(filePath);
 
-TransactionService _transaction = new TransactionService();
-var transactions = _transaction.ProcessRawTransactions(lines);
-var isSuccess = _transaction.SubmitTransactionsAndVendors(transactions);
+//var transactions = _transaction.ProcessRawTransactions(lines);
+//var isSuccess = _transaction.SubmitTransactionsAndVendors(transactions);
+
+_transaction.GetTotalByCategory();
 
 
 //Console.WriteLine($"Total expense: {GetTotalExpsense(transactions)}");

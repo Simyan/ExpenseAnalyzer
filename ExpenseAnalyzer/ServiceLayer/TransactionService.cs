@@ -168,6 +168,47 @@ namespace ExpenseAnalyzer.ServiceLayer
         }
 
 
+        public void GetTotalByCategory()
+        {
+            using var context = new ExpenseAnalyzerContext();
+
+            //var groupByVendor2 =
+            //    from t in context.Transactions
+            //    group t by t.VendorUid into vendorGroup
+            //    select vendorGroup;
+
+            var transactions = context.Transactions;
+            var vendors = context.Vendors;
+
+            var transactionVendor = from t in transactions
+                                    join v in vendors on t.Description equals v.Description
+                                    select new 
+                                    {
+                                        Amount = t.Amount,
+                                        Description = t.Description,
+                                        Category = v.CategoryMaster.Description
+                                    };
+
+
+            Dictionary<string, decimal> ExpenseByCategory = new Dictionary<string, decimal>();
+            foreach (var item in transactionVendor)
+            {
+                if (!ExpenseByCategory.ContainsKey(item.Category))
+                {
+                    ExpenseByCategory.Add(item.Category, item.Amount);
+                    continue;
+                }
+                
+                ExpenseByCategory[item.Category] += item.Amount;
+            }
+
+            foreach(var item in ExpenseByCategory)
+            {
+                Console.WriteLine($"{item.Key} : {item.Value}");
+            }
+        }
+
+
 
 
 
