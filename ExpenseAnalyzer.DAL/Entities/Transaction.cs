@@ -15,6 +15,10 @@ namespace ExpenseAnalyzer.DAL.Entities
 
         public long? VendorUid { get; set; }
 
+        public long? UserUid { get; set; }
+
+        public User? User { get; set; }
+
         public Vendor Vendor { get; set; }    
         public TypeMaster TypeMaster { get; set; }
     }   

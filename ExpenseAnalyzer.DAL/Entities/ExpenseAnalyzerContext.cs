@@ -74,6 +74,16 @@ namespace ExpenseAnalyzer.DAL.Entities
                 .WithMany(e => e.Vendors)
                 .HasForeignKey(e => e.CategoryMasterUid);
 
+            modelBuilder.Entity<Vendor>()
+                .HasOne<User>(e => e.User)
+                .WithMany(e => e.Vendors)
+                .HasForeignKey(e => e.UserUid);
+
+            modelBuilder.Entity<Transaction>()
+                .HasOne<User>(e => e.User)
+                .WithMany(e => e.Transactions)
+                .HasForeignKey(e => e.UserUid);
+
             modelBuilder.Entity<Transaction>(entity =>
             {
                 entity.HasKey(e => e.Uid);
@@ -107,6 +117,22 @@ namespace ExpenseAnalyzer.DAL.Entities
                     .HasColumnName("UId");
 
                 entity.Property(e => e.Description)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.Uid);
+
+                entity.ToTable("User");
+
+                entity.Property(e => e.Uid)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("UId");
+
+                entity.Property(e => e.Username)
                     .HasMaxLength(50)
                     .IsUnicode(false);
             });

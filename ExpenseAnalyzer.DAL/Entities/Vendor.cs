@@ -15,7 +15,11 @@ namespace ExpenseAnalyzer.DAL.Entities
 
         public short? CategoryMasterUid { get; set; }
 
+        public long? UserUid { get; set; }
+
+
         public CategoryMaster? CategoryMaster { get; set; }
+        public User? User { get; set; }
         public ICollection<Transaction> Transactions { get; set; }
     }
 }
