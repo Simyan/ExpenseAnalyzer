@@ -1,27 +1,37 @@
-﻿using ExpenseAnalyzer.Entities;
-using ExpenseAnalyzer.Models;
+﻿
+using ExpenseAnalyzer.BLL.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ExpenseAnalyzer.BLL.Interfaces;
 
-namespace ExpenseAnalyzer.ServiceLayer
+namespace ExpenseAnalyzer.BLL.ServiceLayer
 {
-    public class TransactionService
+    public class TransactionService : ITransactionService
     {
+        private readonly ITransactionRepository _transactionRepository;
+        private readonly IVendorRepository _vendorRepository;
+        
+        public TransactionService(ITransactionRepository transactionRepository, IVendorRepository vendorRepository)
+        {
+            _transactionRepository = transactionRepository;
+            _vendorRepository = vendorRepository;
+        }
+
 
         //extract details into a list of objects
-        public List<Models.Transaction> ProcessRawTransactions(string[] rawTransactions)
+        public List<Models.TransactionDTO> ProcessRawTransactions(string[] rawTransactions)
         {
-            List<Models.Transaction> transactions = new List<Models.Transaction>();
+            List<Models.TransactionDTO> transactions = new List<Models.TransactionDTO>();
 
             try
             {
                 foreach (var record in rawTransactions)
                 {
-                    Models.Transaction transaction = new();
+                    Models.TransactionDTO transaction = new();
                     transaction.Type = TransactionType.Debit;
 
                     var tokens = record.Split(" ");
@@ -42,7 +52,7 @@ namespace ExpenseAnalyzer.ServiceLayer
 
         }
 
-        static void ExtractTransaction(Models.Transaction transaction, string[] tokens)
+        static void ExtractTransaction(Models.TransactionDTO transaction, string[] tokens)
         {
             //TODO: Add log!
             if (tokens.Length < 4) throw new Exception("Tokens must have at least 4 items");
@@ -80,14 +90,14 @@ namespace ExpenseAnalyzer.ServiceLayer
         }
 
 
-        public decimal GetTotalExpsense(List<Models.Transaction> transactions)
+        public decimal GetTotalExpsense(List<Models.TransactionDTO> transactions)
         {
             return transactions
                     .Where(w => w.Type == TransactionType.Debit)
                     .Sum(s => s.Amount);
         }
 
-        public List<Models.Transaction> GetNTopExpense(List<Models.Transaction> transactions, int n = 1)
+        public List<Models.TransactionDTO> GetNTopExpense(List<Models.TransactionDTO> transactions, int n = 1)
         {
             return transactions
                     .Where(w => w.Type == TransactionType.Debit)
@@ -95,7 +105,7 @@ namespace ExpenseAnalyzer.ServiceLayer
                     .Take(n).ToList();
         }
 
-        public void PrintTransactions(List<Models.Transaction> transactions)
+        public void PrintTransactions(List<Models.TransactionDTO> transactions)
         {
             foreach (var record in transactions)
             {
@@ -107,10 +117,9 @@ namespace ExpenseAnalyzer.ServiceLayer
             }
         }
 
-        public Entities.Transaction GetTransaction(long UId)
+        public TransactionDTO GetTransaction(long UId)
         {
-            using var context = new ExpenseAnalyzerContext();
-            var result = context.Transactions.Where(x => x.Uid == UId).SingleOrDefault();
+            var result = _transactionRepository.GetTransaction(UId);
             return result;
         }
 
@@ -124,39 +133,36 @@ namespace ExpenseAnalyzer.ServiceLayer
         //Get Vendors and join with transactions it get vendor uid
         //Push transactions
 
-        public bool SubmitTransactionsAndVendors(List<Models.Transaction> transactions)
+        public bool SubmitTransactionsAndVendors(List<Models.TransactionDTO> transactions)
         {
-            using var context = new ExpenseAnalyzerContext();
             try
             {
-                var vendors = context.Vendors.ToList();
+                var vendors = _vendorRepository.GetVendors().ToList();
                 //TestVendor
                 var excludedVendors = new HashSet<string>(vendors.Select(x => x.Description));
                 var result = transactions
                                .Where(x => !excludedVendors.Contains(x.Description))
-                               .Select(s => new Vendor { Description = s.Description })
+                               .Select(s => new VendorDTO { Description = s.Description })
                                .DistinctBy(d => d.Description)
                                .ToList();
 
 
-                context.Vendors.AddRange(result);
-                context.SaveChanges();
-                vendors = context.Vendors.ToList();
+                _vendorRepository.AddVendors(result);
+                vendors = _vendorRepository.GetVendors().ToList();
 
                 var transactionsToAdd = from t in transactions
                                         join v in vendors on t.Description equals v.Description
-                                        select new Entities.Transaction
+                                        select new TransactionDTO
                                         {
                                             Amount = t.Amount,
                                             Description = t.Description,
                                             PostingDate = t.PostingDate,
                                             TransactionDate = t.TransactionDate,
-                                            TypeUid = (byte)t.Type.GetHashCode(),
+                                            Type = t.Type,
                                             VendorUid = v.Uid
                                         };
 
-                context.Transactions.AddRange(transactionsToAdd);
-                context.SaveChanges();
+                _transactionRepository.AddTransactions(transactionsToAdd);
 
             }
             catch (Exception ex)
@@ -168,17 +174,17 @@ namespace ExpenseAnalyzer.ServiceLayer
         }
 
 
-        public void GetTotalByCategory()
+        public Dictionary<string, decimal> GetTotalByCategory()
         {
-            using var context = new ExpenseAnalyzerContext();
+            
 
             //var groupByVendor2 =
             //    from t in context.Transactions
             //    group t by t.VendorUid into vendorGroup
             //    select vendorGroup;
 
-            var transactions = context.Transactions;
-            var vendors = context.Vendors; 
+            var transactions = _transactionRepository.GetTransactions();
+            var vendors = _vendorRepository.GetVendors(); 
 
             var transactionVendor = from t in transactions
                                     join v in vendors on t.Description equals v.Description
@@ -186,7 +192,7 @@ namespace ExpenseAnalyzer.ServiceLayer
                                     {
                                         Amount = t.Amount,
                                         Description = t.Description,
-                                        Category = v.CategoryMaster.Description
+                                        Category = v.CategoryDescription
                                     };
 
 
@@ -202,19 +208,12 @@ namespace ExpenseAnalyzer.ServiceLayer
                 ExpenseByCategory[item.Category] += item.Amount;
             }
 
-            foreach(var item in ExpenseByCategory)
-            {
-                Console.WriteLine($"{item.Key} : {item.Value}");
-            }
+            //foreach(var item in ExpenseByCategory)
+            //{
+            //    Console.WriteLine($"{item.Key} : {item.Value}");
+            //}
+
+            return ExpenseByCategory;
         }
-
-
-
-
-
-
-
-
-
     }
 }

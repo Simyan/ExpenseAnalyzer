@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32505.173
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseAnalyzer", "ExpenseAnalyzer\ExpenseAnalyzer.csproj", "{57E7F153-278A-499E-97E8-F933859E68D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseAnalyzer", "ExpenseAnalyzer\ExpenseAnalyzer.csproj", "{57E7F153-278A-499E-97E8-F933859E68D0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseAnalyzer.BLL", "ExpenseAnalyzer.BLL\ExpenseAnalyzer.BLL.csproj", "{4D8CD827-E692-4392-AEAF-D5C6CEF2D749}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseAnalyzer.DAL", "ExpenseAnalyzer.DAL\ExpenseAnalyzer.DAL.csproj", "{F71CD5F3-E1C7-438F-BFFA-0301F20D4BE1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseAnalyzer.Web", "ExpenseAnalyzer.Web\ExpenseAnalyzer.Web.csproj", "{2E735B02-D9AE-487D-BD6C-EB5281F7C361}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{57E7F153-278A-499E-97E8-F933859E68D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57E7F153-278A-499E-97E8-F933859E68D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57E7F153-278A-499E-97E8-F933859E68D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D8CD827-E692-4392-AEAF-D5C6CEF2D749}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D8CD827-E692-4392-AEAF-D5C6CEF2D749}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D8CD827-E692-4392-AEAF-D5C6CEF2D749}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D8CD827-E692-4392-AEAF-D5C6CEF2D749}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F71CD5F3-E1C7-438F-BFFA-0301F20D4BE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F71CD5F3-E1C7-438F-BFFA-0301F20D4BE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F71CD5F3-E1C7-438F-BFFA-0301F20D4BE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F71CD5F3-E1C7-438F-BFFA-0301F20D4BE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E735B02-D9AE-487D-BD6C-EB5281F7C361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E735B02-D9AE-487D-BD6C-EB5281F7C361}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E735B02-D9AE-487D-BD6C-EB5281F7C361}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E735B02-D9AE-487D-BD6C-EB5281F7C361}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
