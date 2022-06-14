@@ -174,7 +174,7 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
         }
 
 
-        public Dictionary<string, decimal> GetTotalByCategory()
+        public IEnumerable<TotalByCategoryDTO> GetTotalByCategory()
         {
             
 
@@ -199,7 +199,9 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
             Dictionary<string, decimal> ExpenseByCategory = new Dictionary<string, decimal>();
             foreach (var item in transactionVendor)
             {
-                if (!ExpenseByCategory.ContainsKey(item.Category))
+                if (item.Category == null) continue;
+
+                if ( !ExpenseByCategory.ContainsKey(item.Category))
                 {
                     ExpenseByCategory.Add(item.Category, item.Amount);
                     continue;
@@ -213,7 +215,16 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
             //    Console.WriteLine($"{item.Key} : {item.Value}");
             //}
 
-            return ExpenseByCategory;
+           
+
+            return ExpenseByCategory.Select(x => new TotalByCategoryDTO { Category = x.Key, Amount = x.Value }).ToArray();
+        }
+
+        public IEnumerable<VendorDTO> GetVendorsByUser(long UId)
+        {
+            var vendors = _vendorRepository.GetVendorsByUser(UId);
+
+            return vendors;
         }
     }
 }

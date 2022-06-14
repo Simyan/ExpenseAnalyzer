@@ -46,6 +46,21 @@ namespace ExpenseAnalyzer.DAL.Repositories
         }
 
         //getvendors by user 
+        public IEnumerable<VendorDTO> GetVendorsByUser(long UId)
+        {
+            var result = _context.Vendors.Where(x => x.UserUid == UId);
+
+            return result.Select(x => new VendorDTO()
+            {
+                CategoryDescription = x.CategoryMaster.Description,
+                CategoryMasterUid = x.CategoryMasterUid,
+                Description = x.Description,
+                DisplayName = x.DisplayName,
+                Uid = x.Uid
+            }).OrderBy(o => o.CategoryMasterUid);
+
+        }
+
 
     }
 }

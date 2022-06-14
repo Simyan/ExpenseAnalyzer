@@ -42,27 +42,9 @@ namespace ExpenseAnalyzer.Web.Controllers
             return x;
         }
 
-        public class DummyDTO
-        {
-            public int UId { get; set; }
-            public decimal DummyValue { get; set; }
-            public string DummyKey { get; set; }
-        }
+       
 
 
-        
-        [HttpGet]
-        //public Dictionary<string, decimal> GetTotalByCategory()
-        public IEnumerable<DummyDTO> GetTotalByCategory()
-        {
-            var result = _iTransactionService.GetTotalByCategory();
-            var x = result.Select(x => new DummyDTO { DummyKey = x.Key, DummyValue = x.Value }).ToArray();
-
-            //List<DummyDTO> x = new List<DummyDTO>();
-            //x.Add(new DummyDTO() { UId = 1, DummyKey = "Food", DummyValue = 358 });    
-            //x.Add(new DummyDTO() { UId = 2, DummyKey = "Travel", DummyValue = 3466 });
-
-            return x;
-        }
+       
     }
 }

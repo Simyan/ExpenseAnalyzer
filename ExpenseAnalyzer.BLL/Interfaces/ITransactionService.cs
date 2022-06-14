@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExpenseAnalyzer.BLL.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,9 @@ namespace ExpenseAnalyzer.BLL.Interfaces
 {
     public interface ITransactionService
     {
-        bool SubmitTransactionsAndVendors(List<Models.TransactionDTO> transactions);
-        Dictionary<string, decimal> GetTotalByCategory();
+        bool SubmitTransactionsAndVendors(List<TransactionDTO> transactions);
+        IEnumerable<TotalByCategoryDTO> GetTotalByCategory();
+
+        IEnumerable<VendorDTO> GetVendorsByUser(long UId);
     }
 }
