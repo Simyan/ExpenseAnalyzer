@@ -1,18 +1,24 @@
 ﻿import React, { Component } from 'react';
+import { Button, ButtonGroup } from 'reactstrap'
 
 export class Vendor extends Component {
     static displayName = Vendor.name;
 
     constructor(props) {
         super(props);
-        this.state = { loading: true, vendors: [] };
+        this.state = {
+            loading: true, vendors: [], radioValue: 0, radioValues: new Map() , categories: [] };
+        this.onCategorySelect = this.onCategorySelect.bind(this);
     }
+
+    
 
     componentDidMount() {
         this.GetVendors();
     }
 
-    static renderForecastsTable(vendors) {
+    static renderForecastsTable(vendors, radioVal, categories, onCategorySelect) {
+
         return (
             <div>
                 <table className='table table-striped' aria-labelledby="tabelLabel">
@@ -21,15 +27,37 @@ export class Vendor extends Component {
                             <th>Sl No.</th>
                             <th>Vendor</th>
                             <th>Category</th>
+                            <th>Category Selection</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {vendors.map((item, index) =>
+                        {vendors.map((item, index) => 
                             <tr key={item.uid}>
                                 <td>{index + 1}</td>
                                 <td>{item.description}</td>
                                 <td>{item.categoryDescription}</td>
+
+
+                                <td>
+                                    <ButtonGroup>
+                                        {
+                                            categories.map((radio, i) => (
+                                                <Button
+                                                    key={i}
+                                                    outline
+                                                    color="primary"
+                                                    onClick={() => onCategorySelect(item.uid, radio)}
+                                                    active={ radioVal.get(item.uid) === radio }
+                                                >
+                                                    { radio }
+                                                </Button>
+                                            )
+                                            )
+                                        }
+                                    </ButtonGroup>
+                                </td>
                             </tr>
+                        
                         )}
                     </tbody>
                 </table>
@@ -40,7 +68,7 @@ export class Vendor extends Component {
     render() {
         let contents = this.state.loading
             ? <p><em>Loading...</em></p>
-            : Vendor.renderForecastsTable(this.state.vendors);
+            : Vendor.renderForecastsTable(this.state.vendors, this.state.radioValues, this.state.categories, this.onCategorySelect);
 
         return (
             <div>
@@ -53,10 +81,19 @@ export class Vendor extends Component {
 
     async GetVendors() {
         const uid = 1;
-        //need to add user detail
+        //Todo: need to add user detail
         const response = await fetch('transaction/GetVendorsByUser/1');
         //console.log(response.text);
         const data = await response.json();
-        this.setState({ loading: false, vendors: data })
+        let cats = data.map(record => record.categoryDescription).filter(record => record !== null);
+        let uniqueCategories = [...new Set(cats)]
+        this.setState({ loading: false, vendors: data, categories: uniqueCategories })
+    }
+
+    onCategorySelect(uid, value) {
+        console.log(this.state.radioValues);
+        this.setState(prev => ( {
+            radioValues: prev.radioValues.set(uid, value)
+        }))
     }
 }

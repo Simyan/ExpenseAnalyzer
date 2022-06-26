@@ -176,13 +176,6 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
 
         public IEnumerable<TotalByCategoryDTO> GetTotalByCategory()
         {
-            
-
-            //var groupByVendor2 =
-            //    from t in context.Transactions
-            //    group t by t.VendorUid into vendorGroup
-            //    select vendorGroup;
-
             var transactions = _transactionRepository.GetTransactions();
             var vendors = _vendorRepository.GetVendors(); 
 
