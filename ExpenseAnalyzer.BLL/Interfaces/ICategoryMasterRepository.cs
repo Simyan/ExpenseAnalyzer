@@ -7,12 +7,8 @@ using System.Threading.Tasks;
 
 namespace ExpenseAnalyzer.BLL.Interfaces
 {
-    public interface ITransactionService
+    public interface ICategoryMasterRepository
     {
-        bool SubmitTransactionsAndVendors(List<TransactionDTO> transactions);
-        IEnumerable<TotalByCategoryDTO> GetTotalByCategory();
-
-        IEnumerable<VendorDTO> GetVendorsByUser(long UId);
         IEnumerable<CategoryDTO> GetCategories();
     }
 }

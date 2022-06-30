@@ -42,5 +42,12 @@ namespace ExpenseAnalyzer.Web.Controllers
             return _iTransactionService.GetVendorsByUser(id);
         }
 
+        [HttpGet]
+        public IEnumerable<CategoryDTO> GetCategories()
+        {
+            return _iTransactionService.GetCategories();
+        }
+
+
     }
 }

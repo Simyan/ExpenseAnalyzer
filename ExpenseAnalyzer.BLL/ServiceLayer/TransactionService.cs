@@ -14,11 +14,15 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
     {
         private readonly ITransactionRepository _transactionRepository;
         private readonly IVendorRepository _vendorRepository;
-        
-        public TransactionService(ITransactionRepository transactionRepository, IVendorRepository vendorRepository)
+        private readonly ICategoryMasterRepository _categoryMasterRepository;
+        public TransactionService(
+            ITransactionRepository transactionRepository,
+            IVendorRepository vendorRepository,
+            ICategoryMasterRepository categoryMasterRepository)
         {
             _transactionRepository = transactionRepository;
             _vendorRepository = vendorRepository;
+            _categoryMasterRepository = categoryMasterRepository;
         }
 
 
@@ -219,5 +223,12 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
 
             return vendors;
         }
+
+        public IEnumerable<CategoryDTO> GetCategories()
+        {
+            return _categoryMasterRepository.GetCategories();
+        }
+
+
     }
 }

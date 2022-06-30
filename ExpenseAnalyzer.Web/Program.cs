@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IVendorRepository, VendorRepository>();
 builder.Services.AddTransient<ITransactionRepository, TransactionRepository>();
+builder.Services.AddTransient<ICategoryMasterRepository, CategoryMasterRepository>();
 builder.Services.AddTransient<ITransactionService, TransactionService>();
 builder.Services.AddDbContext<ExpenseAnalyzerContext>(
                    options => options.UseSqlServer("Server=MSI;Database=ExpenseAnalyzer;Trusted_Connection=True;MultipleActiveResultSets=true"));

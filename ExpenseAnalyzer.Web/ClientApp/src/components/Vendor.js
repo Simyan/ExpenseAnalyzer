@@ -7,14 +7,15 @@ export class Vendor extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: true, vendors: [], radioValue: 0, radioValues: new Map() , categories: [] };
+            loading: true, vendors: [], radioValues: new Map() , categories: [] };
         this.onCategorySelect = this.onCategorySelect.bind(this);
     }
 
     
 
     componentDidMount() {
-        this.GetVendors();
+        this.Refresh();
+        //this.GetVendors();
     }
 
     static renderForecastsTable(vendors, radioVal, categories, onCategorySelect) {
@@ -41,15 +42,15 @@ export class Vendor extends Component {
                                 <td>
                                     <ButtonGroup>
                                         {
-                                            categories.map((radio, i) => (
+                                            categories.map((cat, i) => (
                                                 <Button
                                                     key={i}
                                                     outline
                                                     color="primary"
-                                                    onClick={() => onCategorySelect(item.uid, radio)}
-                                                    active={ radioVal.get(item.uid) === radio }
+                                                    onClick={() => onCategorySelect(item.uid, cat.uid, cat.description)}
+                                                    active={item.CategoryMasterUid === cat.uid }
                                                 >
-                                                    { radio }
+                                                    {cat.description}
                                                 </Button>
                                             )
                                             )
@@ -78,22 +79,40 @@ export class Vendor extends Component {
         );
     }
 
+    
+
 
     async GetVendors() {
         const uid = 1;
         //Todo: need to add user detail
         const response = await fetch('transaction/GetVendorsByUser/1');
         //console.log(response.text);
-        const data = await response.json();
-        let cats = data.map(record => record.categoryDescription).filter(record => record !== null);
-        let uniqueCategories = [...new Set(cats)]
-        this.setState({ loading: false, vendors: data, categories: uniqueCategories })
+        return await response.json();
+        //let cats = data.map(record => record.categoryDescription).filter(record => record !== null);
+        //let uniqueCategories = [...new Set(cats)]
+
+        //this.setState({ loading: false, vendors: data, categories: uniqueCategories })
     }
 
-    onCategorySelect(uid, value) {
-        console.log(this.state.radioValues);
-        this.setState(prev => ( {
-            radioValues: prev.radioValues.set(uid, value)
-        }))
+    async GetCategories() {
+        let response = await fetch('transaction/GetCategories');
+        return await response.json(); 
+    };
+
+    onCategorySelect(uid, value, description) {
+        const s = this.state;
+        this.setState(prev => ({
+            vendors: prev.vendors.map(
+                obj => (obj.uid === uid ? Object.assign(obj, { categoryDescription: description, categoryMasterUid: value}) : obj)
+            )
+        }));   
+    }
+
+    async Refresh() {
+        let vendors = await this.GetVendors();
+        let categories = await this.GetCategories();
+
+        this.setState({ loading: false, vendors: vendors, categories: categories })
+
     }
 }
