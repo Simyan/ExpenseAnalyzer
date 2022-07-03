@@ -15,6 +15,7 @@ namespace ExpenseAnalyzer.BLL.Models
 
         public short? CategoryMasterUid { get; set; }
         public string CategoryDescription { get; set; }
+        public long UserUid { get; set; }
 
     }
 }

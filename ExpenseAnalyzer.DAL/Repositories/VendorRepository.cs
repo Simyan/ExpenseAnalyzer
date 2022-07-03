@@ -61,6 +61,35 @@ namespace ExpenseAnalyzer.DAL.Repositories
 
         }
 
+        public bool Update(IEnumerable<VendorDTO> vendors)
+        {
+            List<Vendor> entities = new();
+            try
+            {
+                foreach (var x in vendors)
+                {
+                    var entity = new Vendor()
+                    {
+                        CategoryMasterUid = x.CategoryMasterUid,
+                        Description = x.Description,
+                        DisplayName = x.DisplayName,
+                        Uid = x.Uid,
+                        UserUid = x.UserUid
+                    };
+                    _context.Attach(entity);
+                    _context.Entry(entity).Property("CategoryMasterUid").IsModified = true;
+                    var response = _context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            
+            return true;
+            //var isSuccess = response > 0 ? true : false;
+        }   
+
 
     }
 }

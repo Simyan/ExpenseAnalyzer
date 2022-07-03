@@ -13,6 +13,7 @@ namespace ExpenseAnalyzer.BLL.Interfaces
         void AddVendors(IEnumerable<VendorDTO> vendors);
 
         IEnumerable<VendorDTO> GetVendorsByUser(long UId);
+        bool Update(IEnumerable<VendorDTO> vendors);
 
     }
 }

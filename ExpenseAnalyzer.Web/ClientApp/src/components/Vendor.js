@@ -7,8 +7,10 @@ export class Vendor extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: true, vendors: [], radioValues: new Map() , categories: [] };
+            loading: true, vendors: [], unsavedChanges: [] , categories: [], initialVendors: [] };
         this.onCategorySelect = this.onCategorySelect.bind(this);
+        this.submitVendors = this.submitVendors.bind(this);
+        
     }
 
     
@@ -18,7 +20,9 @@ export class Vendor extends Component {
         //this.GetVendors();
     }
 
-    static renderForecastsTable(vendors, radioVal, categories, onCategorySelect) {
+    
+
+    static renderForecastsTable(vendors, radioVal, categories, onCategorySelect, submitVendors) {
 
         return (
             <div>
@@ -62,6 +66,12 @@ export class Vendor extends Component {
                         )}
                     </tbody>
                 </table>
+                <Button
+                    color="primary"
+                    onClick={() => submitVendors() }
+                >
+                    Save
+                </Button>
             </div>
         );
     }
@@ -69,7 +79,7 @@ export class Vendor extends Component {
     render() {
         let contents = this.state.loading
             ? <p><em>Loading...</em></p>
-            : Vendor.renderForecastsTable(this.state.vendors, this.state.radioValues, this.state.categories, this.onCategorySelect);
+            : Vendor.renderForecastsTable(this.state.vendors, this.state.unsavedVendors, this.state.categories, this.onCategorySelect, this.submitVendors);
 
         return (
             <div>
@@ -104,15 +114,44 @@ export class Vendor extends Component {
         this.setState(prev => ({
             vendors: prev.vendors.map(
                 obj => (obj.uid === uid ? Object.assign(obj, { categoryDescription: description, categoryMasterUid: value}) : obj)
-            )
-        }));   
+            ),
+            
+        }));  
+
+        
     }
 
     async Refresh() {
         let vendors = await this.GetVendors();
         let categories = await this.GetCategories();
-
-        this.setState({ loading: false, vendors: vendors, categories: categories })
-
+        this.setState({
+            loading: false, vendors: vendors, categories: categories,
+            initialVendors: vendors.map(a => ({ ...a }))
+        })
     }
+
+    submitVendors() {
+        let diff = this.state.vendors.filter(
+            x => !this.state.initialVendors.some(
+                y => (x.categoryMasterUid === y.categoryMasterUid && x.uid === y.uid)
+            )
+        );
+
+        const result = fetch('transaction/SubmitVendors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', },
+            body: JSON.stringify(diff),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error', error);
+            });
+    }
+
+
+      
+
 }

@@ -229,6 +229,20 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
             return _categoryMasterRepository.GetCategories();
         }
 
+        public bool Update(IEnumerable<VendorDTO> vendors)
+        {
+            try
+            {
+                _vendorRepository.Update(vendors);
+            }
+            catch(Exception)
+            {
+                //Todo: Log the error
+                return false;
+            }
+           
+            return true;
+        }
 
     }
 }

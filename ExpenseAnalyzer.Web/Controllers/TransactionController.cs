@@ -1,6 +1,7 @@
 ﻿using ExpenseAnalyzer.BLL.Interfaces;
 using ExpenseAnalyzer.BLL.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Text.Json;
 
 namespace ExpenseAnalyzer.Web.Controllers
@@ -46,6 +47,14 @@ namespace ExpenseAnalyzer.Web.Controllers
         public IEnumerable<CategoryDTO> GetCategories()
         {
             return _iTransactionService.GetCategories();
+        }
+
+        [HttpPost]
+        public IActionResult SubmitVendors(IEnumerable<VendorDTO> request)
+        {
+            var response = _iTransactionService.Update(request);
+            return response ? Ok() : StatusCode(500);
+            
         }
 
 
