@@ -57,6 +57,13 @@ namespace ExpenseAnalyzer.Web.Controllers
             
         }
 
+        [HttpPost]
+        public IActionResult UploadFile(List<IFormFile> files)
+        {
+            long count = files.Count();
+            return Ok(new { count });
+        }
+
 
     }
 }
