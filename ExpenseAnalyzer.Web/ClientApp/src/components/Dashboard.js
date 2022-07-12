@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Form, FormGroup, FormText, Label, Input, Button} from 'reactstrap'
+import { Form, FormGroup, FormText, Label, Input, Button, Table, Row, Container, Col } from 'reactstrap'
 
 export class Dashboard extends Component {
     static displayName = Dashboard.name;
@@ -7,7 +7,8 @@ export class Dashboard extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: true, totalByCategories: [], files: []};
+            loading: true, totalByCategories: [], files: []
+        };
         this.uploadFile = this.uploadFile.bind(this);
         this.submitFiles = this.submitFiles.bind(this);
     }
@@ -16,32 +17,68 @@ export class Dashboard extends Component {
         this.GetTotalByCategory();
     }
 
-    static renderView(totalByCategories, uploadFile, submitFiles) {
+    static renderView(totalByCategories, uploadFile, submitFiles, files) {
         return (
             <div>
-                <Form>
-                    <FormGroup>
-                        <Label for="fileUploadInput">
-                            File
-                        </Label>
-                        <Input
-                            id="fileUploadInput"
-                            name="fileInput"
-                            type="file"
-                            onChange={uploadFile}
-                        />
-                        <Button
-                            color="primary"
-                            onClick={() => submitFiles()}
-                        >
-                            Submit
-                        </Button>
-                        <FormText>
-                            This is some placeholder block-level help text for the above input. It's a bit lighter and easily wraps to a new line.
-                        </FormText>
-                        
-                    </FormGroup>
-                </Form>
+                <div>
+                    <Form>
+                        <FormGroup>
+                            <Label for="fileUploadInput">
+                                Upload
+                            </Label>
+                            <Input
+                                id="fileUploadInput"
+                                name="file"
+                                type="file"
+                                onChange={uploadFile}
+                            />
+                        </FormGroup>
+
+                        <FormGroup>
+                            {files.length > 0 &&
+                                <Container>
+                                    <Row xs='3'>
+                                        <Col  >
+                                            <Table
+                                                striped
+                                            >
+                                                <thead>
+                                                    <tr>
+                                                        <th>Sl No.</th>
+                                                        <th>File Name</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {files.map((item, index) =>
+                                                        <tr scope='row' key={index}>
+                                                            <td>{index + 1}</td>
+                                                            <td>{item.name}</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </Table>
+
+                                            <Button
+                                                color="primary"
+                                                onClick={() => submitFiles()}
+                                            >
+                                                Submit
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                </Container>
+
+
+                            }
+
+
+
+                        </FormGroup>
+                    </Form>
+
+
+                </div>
+
 
                 <table className='table table-striped' aria-labelledby="tabelLabel">
                     <thead>
@@ -68,7 +105,7 @@ export class Dashboard extends Component {
     render() {
         let contents = this.state.loading
             ? <p><em>Loading...</em></p>
-            : Dashboard.renderView(this.state.totalByCategories, this.uploadFile, this.submitFiles);
+            : Dashboard.renderView(this.state.totalByCategories, this.uploadFile, this.submitFiles, this.state.files);
 
         return (
             <div>
@@ -86,7 +123,7 @@ export class Dashboard extends Component {
         this.setState({ loading: false, totalByCategories: data })
     }
 
-  
+
     async submitFiles() {
         try {
             const formData = new FormData();
@@ -96,7 +133,7 @@ export class Dashboard extends Component {
 
             const response = await fetch("transaction/UploadFile", {
                 method: 'POST',
-                body: formData 
+                body: formData
             });
 
             if (response.ok) {
@@ -109,11 +146,11 @@ export class Dashboard extends Component {
         }
     }
 
-    async uploadFile (request)  {
+    async uploadFile(request) {
         this.setState({
             files: [...this.state.files, request.target.files[0]]
         })
     }
 
-    
+
 }
