@@ -58,9 +58,35 @@ namespace ExpenseAnalyzer.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult UploadFile(List<IFormFile> files)
+        public async Task<IActionResult> UploadFile(List<IFormFile> files)
         {
             long count = files.Count();
+            long size = files.Sum(x => x.Length);
+            List<string> fileList = new List<string>();
+
+            
+
+            foreach(IFormFile file in files)
+            {
+                if(file.Length > 0)
+                {
+                    // var filePath = Path.GetTempFileName();
+                    var generatedFileName = Path.GetRandomFileName().Split('.')[0];
+                    generatedFileName = generatedFileName + ".pdf";
+                    var filePath = Path.Combine(@"C:\Users\simya\source\repos\Files\DownloadedFiles\", generatedFileName);
+                    using (var stream = System.IO.File.Create(filePath))
+                    {
+                        await file.CopyToAsync(stream);
+                        fileList.Add(stream.Name);
+
+                    }
+                    
+                }
+            }
+
+
+            var response = _iTransactionService.ExtractTables(fileList);
+
             return Ok(new { count });
         }
 

@@ -143,8 +143,10 @@ void Tabula_ExtractTable_LatticeMode()
                 Console.WriteLine($"Cols: {table.ColumnCount}, Rows: {table.RowCount}, Area: {table.Area}, BoundingBox: {table.BoundingBox.ToString()}");
                 foreach (var row in table.Rows)
                 {
+                    Console.WriteLine("*************row*************");
                     foreach (var t in row)
                     {
+                        
                         string textElement = "";
                         var test = string.Join(" | ", t.TextElements);
                         foreach (var e in t.TextElements)

@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ExpenseAnalyzer.BLL.Interfaces;
+using UglyToad.PdfPig;
+using Tabula.Extractors;
+using Tabula;
 
 namespace ExpenseAnalyzer.BLL.ServiceLayer
 {
@@ -27,7 +30,7 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
 
 
         //extract details into a list of objects
-        public List<Models.TransactionDTO> ProcessRawTransactions(string[] rawTransactions)
+        public List<Models.TransactionDTO> ProcessRawTransactions(List<List<string>> rawTransactions)
         {
             List<Models.TransactionDTO> transactions = new List<Models.TransactionDTO>();
 
@@ -38,8 +41,8 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
                     Models.TransactionDTO transaction = new();
                     transaction.Type = TransactionType.Debit;
 
-                    var tokens = record.Split(" ");
-                    ExtractTransaction(transaction, tokens);
+                    //var tokens = record.Split(" ");
+                    ExtractTransaction(transaction, record);
 
                     transactions.Add(transaction);
                 }
@@ -56,10 +59,10 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
 
         }
 
-        static void ExtractTransaction(Models.TransactionDTO transaction, string[] tokens)
+        static void ExtractTransaction(Models.TransactionDTO transaction, List<string> tokens)
         {
             //TODO: Add log!
-            if (tokens.Length < 4) throw new Exception("Tokens must have at least 4 items");
+            if (tokens.Count < 4) throw new Exception("Tokens must have at least 4 items");
 
             bool isTransactionDate = DateTime.TryParseExact(tokens[0],
                                                             "dd/MM/yyyy",
@@ -75,7 +78,7 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
                                                         out DateTime postingDate);
             transaction.PostingDate = postingDate;
 
-            transaction.Description = String.Join(" ", tokens[2..(tokens.Length - 1)]);
+            transaction.Description = String.Join(" ", tokens[2]);
 
             //Handle for credited amount - has CR appended to the amount
             string amountText = tokens.Last();
@@ -127,7 +130,7 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
             return result;
         }
 
-        
+
 
         //Inserting transactions
         //Get vendors
@@ -181,11 +184,11 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
         public IEnumerable<TotalByCategoryDTO> GetTotalByCategory()
         {
             var transactions = _transactionRepository.GetTransactions();
-            var vendors = _vendorRepository.GetVendors(); 
+            var vendors = _vendorRepository.GetVendors();
 
             var transactionVendor = from t in transactions
                                     join v in vendors on t.Description equals v.Description
-                                    select new 
+                                    select new
                                     {
                                         Amount = t.Amount,
                                         Description = t.Description,
@@ -198,12 +201,12 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
             {
                 if (item.Category == null) continue;
 
-                if ( !ExpenseByCategory.ContainsKey(item.Category))
+                if (!ExpenseByCategory.ContainsKey(item.Category))
                 {
                     ExpenseByCategory.Add(item.Category, item.Amount);
                     continue;
                 }
-                
+
                 ExpenseByCategory[item.Category] += item.Amount;
             }
 
@@ -212,7 +215,7 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
             //    Console.WriteLine($"{item.Key} : {item.Value}");
             //}
 
-           
+
 
             return ExpenseByCategory.Select(x => new TotalByCategoryDTO { Category = x.Key, Amount = x.Value }).ToArray();
         }
@@ -235,14 +238,160 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
             {
                 _vendorRepository.Update(vendors);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 //Todo: Log the error
                 return false;
             }
-           
+
             return true;
         }
 
-    }
+
+        public BaseResponseDTO ExtractTables(List<string> fileList)
+        {
+            try
+            {
+                List<ConfidenceMatrix> confidenceMatrices = new List<ConfidenceMatrix>();
+                foreach (var fileName in fileList)
+                {
+                    FileStream pdfStream = File.OpenRead(fileName);
+                    using (PdfDocument document = PdfDocument.Open(pdfStream, new ParsingOptions() { ClipPaths = true }))
+                    {
+                        var numberOfPages = document.NumberOfPages;
+                        var result = GetData(document, confidenceMatrices);
+                        ProcessRawTransactions(result);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return new BaseResponseDTO
+            {
+                IsSuccessful = true
+            };
+        }
+
+        public class ConfidenceMatrix
+        {
+            public bool isAreaMatch { get; set; }
+            public bool isTableIndexMatch { get; set; }
+            public bool isRowIndexMatch { get; set; }
+            public bool isColumnNamesMatch { get; set; }
+        }
+
+        public class ReportMetadata
+        {
+            public double TableArea { get; set; }
+            public int TableIndex { get; set; }
+
+            public int RowIndex { get; set; }
+
+            public List<string> TableHeaders { get; set; }
+        }
+
+       
+
+        public List<List<string>> GetData(PdfDocument document, List<ConfidenceMatrix> confidenceMatrices) {
+            ReportMetadata reportMetadata = new ReportMetadata
+            {
+                RowIndex = 1,
+                TableArea = 5000.33,
+                TableHeaders = new List<string> { "Transaction Date", "Posting Date", "Description", "Amount (AED)" },
+                TableIndex = 2
+            };
+
+            IExtractionAlgorithm extractionAlgorithm = new SpreadsheetExtractionAlgorithm();
+            ObjectExtractor extractor = new ObjectExtractor(document);
+            
+            List<List<string>> reportTokens = new List<List<string>>();
+
+
+            for (int i = 1; i <= document.NumberOfPages; i++)
+            {
+                ConfidenceMatrix confidenceMatrix = new ConfidenceMatrix();
+                PageArea page = extractor.Extract(i);
+                List<Table> tables = extractionAlgorithm.Extract(page);
+
+                int tableIndex = 0;
+                foreach (Table table in tables)
+                {
+                    confidenceMatrix.isTableIndexMatch = tableIndex == reportMetadata.TableIndex;
+                    confidenceMatrix.isAreaMatch = table.Area == reportMetadata.TableArea;
+                    List<List<string>> tabletokens = new List<List<string>>();
+
+                    int rowIndex = 0;
+                    foreach (var row in table.Rows)
+                    {
+                        confidenceMatrix.isRowIndexMatch = rowIndex == reportMetadata.RowIndex;
+                        int headerTokenCount = 0;
+
+
+                        if (!confidenceMatrix.isColumnNamesMatch)
+                        {
+                            foreach (var cell in row)
+                            {
+                                foreach (var text in cell.TextElements.ToList())
+                                {
+                                    if (reportMetadata.TableHeaders.Contains(text.GetText()))
+                                    {
+                                        headerTokenCount++; 
+                                    }
+                                }
+                            }
+                            
+                        }
+                        else
+                        {
+                            int tableTokenColumnIndex = 0;
+
+                            
+                            foreach (var cell in row)
+                            {
+                                int tableTokenRowIndex = 0;
+
+
+                                foreach (var text in cell.TextElements.ToList())
+                                {
+                                    if(tableTokenColumnIndex == 0)
+                                    {
+                                        tabletokens.Add(new List<string>(cell.TextElements.Count));
+                                    }
+
+                                    if (text.GetText().ToUpperInvariant() == "SIMYAN ANWAR: 4034 XXXX XXXX 4681".ToUpperInvariant() 
+                                        || text.GetText().ToUpperInvariant() == "PRIMARY CARD NUMBER".ToUpperInvariant()) 
+                                            continue;
+                                    
+                                    tabletokens[tableTokenRowIndex].Add(text.GetText());
+                                    tabletokens[tableTokenRowIndex][tableTokenColumnIndex] = text.GetText();
+                                    tableTokenRowIndex++;
+                                }
+                                tableTokenColumnIndex++;
+                                
+                            }
+
+                            
+                        }
+
+                        confidenceMatrix.isColumnNamesMatch = reportMetadata.TableHeaders.Count == headerTokenCount;
+                        rowIndex++;
+
+                        confidenceMatrices.Add(confidenceMatrix);
+                    }
+
+                    reportTokens.AddRange(tabletokens);
+                    tableIndex++;
+                }
+
+
+            }
+
+            return reportTokens;
+        }
+
+        
+    } 
 }
