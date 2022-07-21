@@ -21,6 +21,7 @@ namespace ExpenseAnalyzer.DAL.Entities
         public virtual DbSet<Transaction> Transactions { get; set; } = null!;
         public virtual DbSet<TypeMaster> TypeMasters { get; set; } = null!;
         public virtual DbSet<Vendor> Vendors { get; set; } = null!;
+        public virtual DbSet<ReportMetadataMaster> ReportMetadatas { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {}
@@ -45,6 +46,40 @@ namespace ExpenseAnalyzer.DAL.Entities
                     .IsUnicode(false);
             });
 
+
+
+            
+
+
+            modelBuilder.Entity<ReportMetadataMaster>(entity =>
+            {
+                entity.HasKey(e => e.Uid);
+
+                entity.ToTable("ReportMetadataMaster");
+
+                entity.Property(e => e.Uid).HasColumnName("UId");
+                entity.Property(e => e.BankMasterUid).HasColumnName("BankMasterUId");
+                
+                entity.Property(e => e.TableHeaders)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+            });
+
+            modelBuilder.Entity<BankMaster>(entity =>
+            {
+                entity.HasKey(e => e.Uid);
+
+                entity.ToTable("BankMaster");
+
+                entity.Property(e => e.Uid).HasColumnName("UId");
+                
+                entity.Property(e => e.Name)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+            });
+
             modelBuilder.Entity<CategoryMaster>(entity =>
             {
                 entity.HasKey(e => e.Uid);
@@ -58,6 +93,16 @@ namespace ExpenseAnalyzer.DAL.Entities
                     .HasMaxLength(50)
                     .IsUnicode(false);
             });
+
+            modelBuilder.Entity<BankMaster>()
+               .HasOne<ReportMetadataMaster>(e => e.ReportMetadataMaster)
+               .WithOne(e => e.BankMaster)
+               .HasForeignKey<ReportMetadataMaster>(e => e.BankMasterUid);
+
+            modelBuilder.Entity<User>()
+               .HasOne<BankMaster>(e => e.Bank)
+               .WithMany(e => e.Users)
+               .HasForeignKey(e => e.BankMasterUid);
 
             modelBuilder.Entity<Transaction>()
                .HasOne<Vendor>(e => e.Vendor)

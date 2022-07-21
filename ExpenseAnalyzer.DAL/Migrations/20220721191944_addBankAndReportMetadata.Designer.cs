@@ -4,6 +4,7 @@ using ExpenseAnalyzer.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpenseAnalyzer.Migrations
 {
     [DbContext(typeof(ExpenseAnalyzerContext))]
-    partial class ExpenseAnalyzerContextModelSnapshot : ModelSnapshot
+    [Migration("20220721191944_addBankAndReportMetadata")]
+    partial class addBankAndReportMetadata
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

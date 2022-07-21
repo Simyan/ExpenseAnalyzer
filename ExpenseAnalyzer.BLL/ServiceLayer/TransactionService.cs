@@ -18,14 +18,17 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
         private readonly ITransactionRepository _transactionRepository;
         private readonly IVendorRepository _vendorRepository;
         private readonly ICategoryMasterRepository _categoryMasterRepository;
+        private readonly IReportMetadataMasterRepository _reportMetadataMasterRepository;
         public TransactionService(
             ITransactionRepository transactionRepository,
             IVendorRepository vendorRepository,
-            ICategoryMasterRepository categoryMasterRepository)
+            ICategoryMasterRepository categoryMasterRepository,
+            IReportMetadataMasterRepository reportMetadataMasterRepository)
         {
             _transactionRepository = transactionRepository;
             _vendorRepository = vendorRepository;
             _categoryMasterRepository = categoryMasterRepository;
+            _reportMetadataMasterRepository = reportMetadataMasterRepository;
         }
 
 
@@ -296,13 +299,16 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
        
 
         public List<List<string>> GetData(PdfDocument document, List<ConfidenceMatrix> confidenceMatrices) {
-            ReportMetadata reportMetadata = new ReportMetadata
-            {
-                RowIndex = 1,
-                TableArea = 5000.33,
-                TableHeaders = new List<string> { "Transaction Date", "Posting Date", "Description", "Amount (AED)" },
-                TableIndex = 2
-            };
+            //ReportMetadata reportMetadata = new ReportMetadata
+            //{
+            //    RowIndex = 1,
+            //    TableArea = 5000.33,
+            //    TableHeaders = new List<string> { "Transaction Date", "Posting Date", "Description", "Amount (AED)" },
+            //    TableIndex = 2
+            //};
+
+            var reportMetadata = _reportMetadataMasterRepository.GetReportMetadata(1);
+
 
             IExtractionAlgorithm extractionAlgorithm = new SpreadsheetExtractionAlgorithm();
             ObjectExtractor extractor = new ObjectExtractor(document);

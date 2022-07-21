@@ -11,6 +11,11 @@ namespace ExpenseAnalyzer.DAL.Entities
         public long Uid { get; set; }
         public string Username { get; set; }
 
+        public int? BankMasterUid { get; set; }
+
+        public BankMaster? Bank { get; set; }
+
+
         public ICollection<Vendor> Vendors { get; set; }
         public ICollection<Transaction> Transactions { get; set; }
 
