@@ -262,8 +262,10 @@ namespace ExpenseAnalyzer.BLL.ServiceLayer
                     using (PdfDocument document = PdfDocument.Open(pdfStream, new ParsingOptions() { ClipPaths = true }))
                     {
                         var numberOfPages = document.NumberOfPages;
-                        var result = GetData(document, confidenceMatrices);
-                        ProcessRawTransactions(result);
+                        var rawTransactions = GetData(document, confidenceMatrices);
+                        var transactions = ProcessRawTransactions(rawTransactions);
+
+                        var isSuccessful = SubmitTransactionsAndVendors(transactions);
                     }
                 }
             }

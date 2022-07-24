@@ -20,15 +20,24 @@ namespace ExpenseAnalyzer.DAL.Repositories
 
         public void AddVendors(IEnumerable<VendorDTO> vendors)
         {
-            var vendorEntities = vendors.Select(x => new Vendor()
+            try
             {
-                CategoryMasterUid = x.CategoryMasterUid,
-                Description = x.Description,
-                DisplayName = x.DisplayName,
-                Uid = x.Uid
-            });
-            _context.Vendors.AddRange();
-            _context.SaveChanges();
+                var vendorEntities = vendors.Select(x => new Vendor()
+                {
+                    CategoryMasterUid = x.CategoryMasterUid,
+                    Description = x.Description,
+                    DisplayName = x.DisplayName,
+                    Uid = x.Uid
+                });
+                _context.Vendors.AddRange(vendorEntities);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+           
         }
 
         public IEnumerable<VendorDTO> GetVendors()

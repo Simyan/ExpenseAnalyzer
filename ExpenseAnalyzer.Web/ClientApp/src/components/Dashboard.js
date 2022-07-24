@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+//import './NavMenu.css';
 import { Form, FormGroup, FormText, Label, Input, Button, Table, Row, Container, Col } from 'reactstrap'
 
 export class Dashboard extends Component {
@@ -80,7 +81,7 @@ export class Dashboard extends Component {
                 </div>
 
 
-                <table className='table table-striped' aria-labelledby="tabelLabel">
+                <table className='table' aria-labelledby="tabelLabel">
                     <thead>
                         <tr>
                             <th>Sl No.</th>
@@ -90,7 +91,7 @@ export class Dashboard extends Component {
                     </thead>
                     <tbody>
                         {totalByCategories.map((item, index) =>
-                            <tr key={item.category}>
+                            <tr key={item.category} >
                                 <td>{index + 1}</td>
                                 <td>{item.category}</td>
                                 <td>{item.amount}</td>

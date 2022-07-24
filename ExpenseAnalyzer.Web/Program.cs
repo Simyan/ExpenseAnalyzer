@@ -12,6 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IVendorRepository, VendorRepository>();
 builder.Services.AddTransient<ITransactionRepository, TransactionRepository>();
 builder.Services.AddTransient<ICategoryMasterRepository, CategoryMasterRepository>();
+builder.Services.AddTransient<IReportMetadataMasterRepository, ReportMetadataMasterRepository>();
 builder.Services.AddTransient<ITransactionService, TransactionService>();
 builder.Services.AddDbContext<ExpenseAnalyzerContext>(
                    options => 

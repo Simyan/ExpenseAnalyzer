@@ -20,16 +20,26 @@ namespace ExpenseAnalyzer.DAL.Repositories
 
         public void AddTransactions(IEnumerable<TransactionDTO> transactions)
         {
-            var transactionEntities = transactions.Select(x => new Transaction()
+            try
             {
-                Amount = x.Amount,
-                Description = x.Description,
-                PostingDate = x.PostingDate,
-                TransactionDate = x.TransactionDate,
-                TypeUid = (byte)x.Type
-            });
-            _context.Transactions.AddRange(transactionEntities);
-            _context.SaveChanges();
+                var transactionEntities = transactions.Select(x => new Transaction()
+                {
+                    Amount = x.Amount,
+                    Description = x.Description,
+                    PostingDate = x.PostingDate,
+                    TransactionDate = x.TransactionDate,
+                    TypeUid = (byte)x.Type,
+                    VendorUid = (byte)x.VendorUid,
+                });
+                _context.Transactions.AddRange(transactionEntities);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+           
             
         }
 
