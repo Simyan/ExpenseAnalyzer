@@ -3,6 +3,8 @@ using ExpenseAnalyzer.BLL.ServiceLayer;
 using ExpenseAnalyzer.DAL.Entities;
 using ExpenseAnalyzer.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication;
+using ExpenseAnalyzer.BLL.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,18 @@ builder.Services.AddDbContext<ExpenseAnalyzerContext>(
                                 options.UseSqlServer("Server=MSI;Database=ExpenseAnalyzer;Trusted_Connection=True;MultipleActiveResultSets=true")
                                 .LogTo(Console.WriteLine, LogLevel.Information);
                              });
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<ExpenseAnalyzerContext>();
+
+builder.Services.AddIdentityServer()
+    .AddApiAuthorization<ApplicationUser, ExpenseAnalyzerContext>();
+
+builder.Services.AddAuthentication()
+    .AddIdentityServerJwt();
+
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
@@ -34,11 +48,17 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseAuthentication();
+app.UseIdentityServer();
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
+app.MapRazorPages();
 
 app.MapFallbackToFile("index.html"); ;
 
 app.Run();
+
+

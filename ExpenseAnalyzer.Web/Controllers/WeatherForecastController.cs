@@ -1,9 +1,11 @@
 ﻿using ExpenseAnalyzer.BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ExpenseAnalyzer.Web.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]/[action]")]
     public class WeatherForecastController : ControllerBase

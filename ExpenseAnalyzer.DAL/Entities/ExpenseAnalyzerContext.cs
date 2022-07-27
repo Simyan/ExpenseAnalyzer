@@ -1,18 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using Duende.IdentityServer.EntityFramework.Options;
+using ExpenseAnalyzer.BLL.Models;
+using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Options;
 
 namespace ExpenseAnalyzer.DAL.Entities
 {
-    public partial class ExpenseAnalyzerContext : DbContext
-    {
-        public ExpenseAnalyzerContext()
-        {
-        }
+    /*
+        Useful Commands: 
+            add-migration MyFirstMigration
+            Update-Database
+     */
 
-        public ExpenseAnalyzerContext(DbContextOptions<ExpenseAnalyzerContext> options)
-            : base(options)
+    public partial class ExpenseAnalyzerContext : ApiAuthorizationDbContext<ApplicationUser>
+    {
+        
+
+        public ExpenseAnalyzerContext(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions)
+            : base(options, operationalStoreOptions)
         {
 
         }
@@ -28,6 +36,7 @@ namespace ExpenseAnalyzer.DAL.Entities
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Vendor>(entity =>
             {
                 entity.HasKey(e => e.Uid);
